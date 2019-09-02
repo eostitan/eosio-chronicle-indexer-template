@@ -24,24 +24,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-valid_actions = [('eosio.token', 'transfer')]
-
-action_buffer_max_size = 25000
-action_buffer = []
-
-def get_unique_actions(block_num, block_time, trace, unique_actions):
-	try:
-		if (trace['account'], trace['name']) in valid_actions:
-			d = {'block_num': block_num, 'time': block_time, 'account': trace['account'], 'name': trace['name']}
-			d.update(trace['data'])
-			if d not in unique_actions:
-				unique_actions.append(d)
-			for inline_trace in trace['inline_traces']:
-				unique_actions = get_unique_actions(block_num, block_time, inline_trace, unique_actions)
-	except:
-		logger.error(traceback.format_exc())
-	return unique_actions
-
+# basic message handler
 async def handler(websocket, path):
 	global action_buffer
 	bcount = 0
@@ -57,7 +40,6 @@ async def handler(websocket, path):
 				block_num = int(data['block_num'])
 				await websocket.send(str(block_num))
 				logger.info(f"Block {block_num} acknowledged!")
-		
 
 
 start_server = websockets.serve(handler, '0.0.0.0', 8800)
