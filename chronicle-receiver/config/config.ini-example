@@ -1,0 +1,13 @@
+# connection to nodeos state_history_plugin
+host = x.x.x.x
+port = x
+mode = scan
+
+## Websocket exporter in bidirectional mode
+plugin = exp_ws_plugin
+exp-ws-host = chronicle_consumer
+exp-ws-port = 8800
+exp-ws-bin-header = false
+
+#skip-table-deltas = true
+#skip-block-events = false

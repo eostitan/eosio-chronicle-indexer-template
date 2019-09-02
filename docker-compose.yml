@@ -1,0 +1,27 @@
+version: '3.3'
+
+services:
+  chronicle_receiver:
+##    restart: always
+    build: ./chronicle-receiver
+    volumes:
+      - ./chronicle-receiver/config:/build/eos-chronicle/config
+      - ./chronicle-receiver/data:/build/eos-chronicle/data
+    env_file:
+      - ./config.env
+    command: ["/build/eos-chronicle/build/chronicle-receiver", "--config-dir", "/build/eos-chronicle/config", "--data-dir", "/build/eos-chronicle/data"]
+    depends_on:
+      - chronicle_consumer
+    stop_grace_period: 10m
+
+  chronicle_consumer:
+    restart: always
+    build: ./chronicle-consumer
+    ports:
+      - "8800:8800"
+    volumes:
+      - ./chronicle-consumer:/usr/src/app
+    env_file:
+      - ./config.env
+    command: ["python", "src/consumer.py"]
+

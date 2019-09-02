@@ -1,0 +1,4 @@
+chronicle-receiver/data
+*.log
+*.env
+*.ini
