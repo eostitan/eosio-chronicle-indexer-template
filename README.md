@@ -1,6 +1,6 @@
 ## EOSIO Chronicle Indexer
 
-Will employ the open source Chronicle project to collect and organise data from EOSIO blockchains.
+Will employ the open source [EOS Chronicle project](https://github.com/EOSChronicleProject/eos-chronicle) to collect and organise data from EOSIO blockchains.
 
 ### To Run
 
