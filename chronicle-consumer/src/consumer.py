@@ -24,7 +24,7 @@ signal.signal(signal.SIGTERM, stop_container)
 # basic message handler
 async def handler(websocket, path):
 	global action_buffer
-	bcount = 0
+	msg_count = 0
 	while KEEP_RUNNING:
 		msg = await websocket.recv()
 		msg = msg.decode("utf-8", errors='ignore')
@@ -34,9 +34,9 @@ async def handler(websocket, path):
 			archive.addMessage(msg)
 
 		if msg[:18] == '{"msgtype":"BLOCK"':
-			bcount += 1
-			if bcount % 500 == 0:
-				bcount = 0
+			msg_count += 1
+			if msg_count % 500 == 0:
+				msg_count = 0
 				j = json.loads(msg)
 				data = j['data']
 				block_num = int(data['block_num'])
