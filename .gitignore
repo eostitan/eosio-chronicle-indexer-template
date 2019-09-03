@@ -2,3 +2,4 @@ chronicle-receiver/data
 *.log
 *.env
 *.ini
+__pycache__
