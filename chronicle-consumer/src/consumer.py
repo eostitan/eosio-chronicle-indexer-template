@@ -9,8 +9,8 @@ from datetime import datetime
 from debug_log import logger
 
 # if config to save all data
-ARCHIVE_MODE = os.getenv('ARCHIVE_MODE', 'Off')
-if ARCHIVE_MODE != 'Off':
+ARCHIVE_MODE = os.getenv('ARCHIVE_MODE', 'OFF').upper()
+if ARCHIVE_MODE != 'OFF':
 	from storage import ArchiveStorage
 	archive = ArchiveStorage()
 
@@ -30,7 +30,7 @@ async def handler(websocket, path):
 		msg = msg.decode("utf-8", errors='ignore')
 
 		# archive full message if option enabled
-		if ARCHIVE_MODE != 'Off':
+		if ARCHIVE_MODE != 'OFF':
 			archive.addMessage(msg)
 
 		if msg[:18] == '{"msgtype":"BLOCK"':
@@ -40,13 +40,15 @@ async def handler(websocket, path):
 				j = json.loads(msg)
 				data = j['data']
 				block_num = int(data['block_num'])
+				block = data['block']
+				block_timestamp = block['timestamp']
 
 				# commit to ensure data written before block acknowledged
-				if ARCHIVE_MODE != 'Off':
-					archive.commit(block_num)
+				if ARCHIVE_MODE != 'OFF':
+					archive.commit(block_num, block_timestamp)
 
 				await websocket.send(str(block_num))
-				logger.info(f"Block {block_num} acknowledged!")
+				logger.info(f"Block {block_num} with timestamp {block_timestamp} acknowledged!")
 #				logger.info(j)
 #				logger.info('')
 
