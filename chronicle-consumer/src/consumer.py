@@ -8,7 +8,11 @@ import traceback
 from datetime import datetime
 from debug_log import logger
 
-STORE_ALL = bool(os.getenv('STORE_ALL', False))
+# if config to save all data
+ARCHIVE_MODE = os.getenv('ARCHIVE_MODE', 'Off')
+if ARCHIVE_MODE != 'Off':
+	from storage import ArchiveStorage
+	archive = ArchiveStorage()
 
 # for gracefully handling docker signals
 KEEP_RUNNING = True
@@ -24,6 +28,11 @@ async def handler(websocket, path):
 	while KEEP_RUNNING:
 		msg = await websocket.recv()
 		msg = msg.decode("utf-8", errors='ignore')
+
+		# archive full message if option enabled
+		if ARCHIVE_MODE != 'Off':
+			archive.addMessage(msg)
+
 		if msg[:18] == '{"msgtype":"BLOCK"':
 			bcount += 1
 			if bcount % 500 == 0:
