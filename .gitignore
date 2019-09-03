@@ -3,3 +3,4 @@ chronicle-receiver/data
 *.env
 *.ini
 __pycache__
+data-archive
