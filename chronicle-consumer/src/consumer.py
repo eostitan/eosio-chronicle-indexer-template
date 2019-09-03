@@ -1,4 +1,4 @@
-import logging
+import os
 import asyncio
 import websockets
 import time
@@ -6,6 +6,9 @@ import signal
 import json
 import traceback
 from datetime import datetime
+from debug_log import logger
+
+STORE_ALL = bool(os.getenv('STORE_ALL', False))
 
 # for gracefully handling docker signals
 KEEP_RUNNING = True
@@ -13,16 +16,6 @@ def stop_container():
     global KEEP_RUNNING
     KEEP_RUNNING = False
 signal.signal(signal.SIGTERM, stop_container)
-
-# logging configuration
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler('debug.log')
-handler.setLevel(logging.INFO)
-formatter = logging.Formatter(f'%(asctime)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
 
 # basic message handler
 async def handler(websocket, path):
