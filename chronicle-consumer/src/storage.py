@@ -7,7 +7,7 @@ import traceback
 from datetime import datetime
 from debug_log import logger
 
-ARCHIVE_MODE = os.getenv('ARCHIVE_MODE', 'OFF')
+ARCHIVE_MODE = os.getenv('ARCHIVE_MODE', 'OFF').upper()
 
 class ArchiveStorage():
 	def __init__(self, mode=ARCHIVE_MODE):

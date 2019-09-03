@@ -56,6 +56,7 @@ async def handler(websocket, path):
 			j = json.loads(msg)
 			data = j['data']
 			block_num = int(data['block_num'])
+			block_timestamp = data['block_timestamp']
 			trace = data['trace']
 			tx_id = trace['id']
 			cpu_usage_us = trace['cpu_usage_us']
@@ -68,6 +69,7 @@ async def handler(websocket, path):
 				name = act['name']
 				auth = act['authorization']
 				data = act['data']
+				account_ram_deltas = action_trace['account_ram_deltas']
 #				logger.info(f'{receiver} - {account} - {name} - {data}')
 
 		elif msg[:20] == '{"msgtype":"TBL_ROW"':
@@ -76,14 +78,23 @@ async def handler(websocket, path):
 		elif msg[:20] == '{"msgtype":"ABI_UPD"':
 			j = json.loads(msg)
 
-		elif msg[:24] == '{"msgtype":"ENCODER_ERR"':
-			j = json.loads(msg)
-
 		elif msg[:28] == '{"msgtype":"BLOCK_COMPLETED"':
 			j = json.loads(msg)
 
 		elif msg[:17] == '{"msgtype":"FORK"':
 			j = json.loads(msg)
+			logger.info(j)
+			logger.info('')
+
+		elif msg[:20] == '{"msgtype":"ABI_ERR"':
+			j = json.loads(msg)
+			logger.info(j)
+			logger.info('')
+
+		elif msg[:24] == '{"msgtype":"ENCODER_ERR"':
+			j = json.loads(msg)
+			logger.info(j)
+			logger.info('')
 
 		else:
 			j = json.loads(msg)
