@@ -6,14 +6,8 @@ import signal
 import json
 import traceback
 from datetime import datetime
-from debug_log import logger
+import logging
 import struct
-
-# if config to save all data
-ARCHIVE_MODE = os.getenv('ARCHIVE_MODE', 'OFF').upper()
-if ARCHIVE_MODE != 'OFF':
-	from storage import ArchiveStorage
-	archive = ArchiveStorage()
 
 # for gracefully handling docker signals
 KEEP_RUNNING = True
@@ -21,6 +15,15 @@ def stop_container():
     global KEEP_RUNNING
     KEEP_RUNNING = False
 signal.signal(signal.SIGTERM, stop_container)
+
+# standard logging configuration
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler('debug.log')
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter(f'%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 # define chronicle message constants
 CHRONICLE_MSGTYPE_FORK = 1001
@@ -44,10 +47,6 @@ async def handler(websocket, path):
 		msgtype = struct.unpack('i', msg[0:4])[0]
 		value2 = struct.unpack('i', msg[4:8])[0]
 
-		# todo - archive full message if option enabled
-#		if ARCHIVE_MODE != 'OFF':
-#			archive.addMessage(msg)
-
 		if msgtype == CHRONICLE_MSGTYPE_FORK:
 			msg = msg[8:].decode("utf-8", errors='ignore')
 			msg = json.loads(msg)
@@ -63,11 +62,6 @@ async def handler(websocket, path):
 				block_num = int(msg['block_num'])
 				block = msg['block']
 				block_timestamp = block['timestamp']
-
-				# todo - commit to ensure data written before block acknowledged
-#				if ARCHIVE_MODE != 'OFF':
-#					archive.commit(block_num, block_timestamp)
-
 				await websocket.send(str(block_num))
 				logger.info(f"Block {block_num} with timestamp {block_timestamp} acknowledged!")
 

@@ -10,5 +10,5 @@ exp-ws-port = 8800
 exp-ws-bin-header = true
 exp-ws-max-unack = 3000
 
-#skip-table-deltas = true
+skip-table-deltas = true
 #skip-block-events = false
