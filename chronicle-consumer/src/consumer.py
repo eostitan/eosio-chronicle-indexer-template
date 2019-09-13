@@ -38,8 +38,6 @@ CHRONICLE_MSGTYPE_BLOCK_COMPLETED = 1010
 async def handler(websocket, path):
 	global action_buffer
 	block_count = 0
-	msgcount = 0
-	tx_trace_count = 0
 	start_time = datetime.utcnow()
 	while KEEP_RUNNING:
 		msg = await websocket.recv()
@@ -62,22 +60,18 @@ async def handler(websocket, path):
 		elif msgtype == CHRONICLE_MSGTYPE_BLOCK:
 			block_count += 1
 			if block_count % 100 == 0:
-				block_count = 0
 				msg = msg[8:].decode("utf-8", errors='ignore')
 				msg = json.loads(msg)
-#				logger.info(data)
 				block_num = int(msg['block_num'])
 				block = msg['block']
 				block_timestamp = block['timestamp']
 
-				# commit to ensure data written before block acknowledged
-				if ARCHIVE_MODE != 'OFF':
-					archive.commit(block_num, block_timestamp)
+				# todo - commit to ensure data written before block acknowledged
+#				if ARCHIVE_MODE != 'OFF':
+#					archive.commit(block_num, block_timestamp)
 
 				await websocket.send(str(block_num))
 				logger.info(f"Block {block_num} with timestamp {block_timestamp} acknowledged!")
-#				logger.info(data)
-#				logger.info('')
 
 		elif msgtype == CHRONICLE_MSGTYPE_TX_TRACE:
 			msg = msg[8:].decode("utf-8", errors='ignore')
