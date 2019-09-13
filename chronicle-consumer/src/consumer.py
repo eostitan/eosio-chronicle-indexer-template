@@ -7,6 +7,7 @@ import json
 import traceback
 from datetime import datetime
 from debug_log import logger
+import struct
 
 # if config to save all data
 ARCHIVE_MODE = os.getenv('ARCHIVE_MODE', 'OFF').upper()
@@ -21,26 +22,52 @@ def stop_container():
     KEEP_RUNNING = False
 signal.signal(signal.SIGTERM, stop_container)
 
+# define chronicle message constants
+CHRONICLE_MSGTYPE_FORK = 1001
+CHRONICLE_MSGTYPE_BLOCK = 1002
+CHRONICLE_MSGTYPE_TX_TRACE = 1003
+CHRONICLE_MSGTYPE_ABI_UPD = 1004
+CHRONICLE_MSGTYPE_ABI_REM = 1005
+CHRONICLE_MSGTYPE_ABI_ERR = 1006
+CHRONICLE_MSGTYPE_TBL_ROW = 1007
+CHRONICLE_MSGTYPE_ENCODER_ERR = 1008
+CHRONICLE_MSGTYPE_RCVR_PAUSE = 1009
+CHRONICLE_MSGTYPE_BLOCK_COMPLETED = 1010
+
 # basic message handler
 async def handler(websocket, path):
 	global action_buffer
 	block_count = 0
+	msgcount = 0
+	tx_trace_count = 0
+	start_time = datetime.utcnow()
 	while KEEP_RUNNING:
 		msg = await websocket.recv()
-		msg = msg.decode("utf-8", errors='ignore')
+		msgtype = struct.unpack('i', msg[0:4])[0]
+		value2 = struct.unpack('i', msg[4:8])[0]
 
-		# archive full message if option enabled
-		if ARCHIVE_MODE != 'OFF':
-			archive.addMessage(msg)
+		# todo - archive full message if option enabled
+#		if ARCHIVE_MODE != 'OFF':
+#			archive.addMessage(msg)
 
-		if msg[:18] == '{"msgtype":"BLOCK"':
+		if msgtype == CHRONICLE_MSGTYPE_FORK:
+			msg = msg[8:].decode("utf-8", errors='ignore')
+			msg = json.loads(msg)
+			block_num = int(msg['block_num']) - 1
+			logger.info(msg)
+			logger.info('')
+			await websocket.send(str(block_num))
+			logger.info(f"Block {block_num} acknowledged (on fork)!")
+
+		elif msgtype == CHRONICLE_MSGTYPE_BLOCK:
 			block_count += 1
 			if block_count % 100 == 0:
 				block_count = 0
-				j = json.loads(msg)
-				data = j['data']
-				block_num = int(data['block_num'])
-				block = data['block']
+				msg = msg[8:].decode("utf-8", errors='ignore')
+				msg = json.loads(msg)
+#				logger.info(data)
+				block_num = int(msg['block_num'])
+				block = msg['block']
 				block_timestamp = block['timestamp']
 
 				# commit to ensure data written before block acknowledged
@@ -49,15 +76,15 @@ async def handler(websocket, path):
 
 				await websocket.send(str(block_num))
 				logger.info(f"Block {block_num} with timestamp {block_timestamp} acknowledged!")
-#				logger.info(j)
+#				logger.info(data)
 #				logger.info('')
 
-		elif msg[:21] == '{"msgtype":"TX_TRACE"':
-			j = json.loads(msg)
-			data = j['data']
-			block_num = int(data['block_num'])
-			block_timestamp = data['block_timestamp']
-			trace = data['trace']
+		elif msgtype == CHRONICLE_MSGTYPE_TX_TRACE:
+			msg = msg[8:].decode("utf-8", errors='ignore')
+			msg = json.loads(msg)
+			block_num = int(msg['block_num'])
+			block_timestamp = msg['block_timestamp']
+			trace = msg['trace']
 			tx_id = trace['id']
 			cpu_usage_us = trace['cpu_usage_us']
 			net_usage_words = trace['net_usage_words']
@@ -71,39 +98,6 @@ async def handler(websocket, path):
 				data = act['data']
 				account_ram_deltas = action_trace['account_ram_deltas']
 #				logger.info(f'{receiver} - {account} - {name} - {data}')
-
-		elif msg[:20] == '{"msgtype":"TBL_ROW"':
-			j = json.loads(msg)
-
-		elif msg[:20] == '{"msgtype":"ABI_UPD"':
-			j = json.loads(msg)
-
-		elif msg[:28] == '{"msgtype":"BLOCK_COMPLETED"':
-			j = json.loads(msg)
-
-		elif msg[:17] == '{"msgtype":"FORK"':
-			j = json.loads(msg)
-			logger.info(j)
-			logger.info('')
-			data = j['data']
-			block_num = int(data['block_num']) - 1
-			await websocket.send(str(block_num))
-			logger.info(f"Block {block_num} acknowledged (on fork)!")
-
-		elif msg[:20] == '{"msgtype":"ABI_ERR"':
-			j = json.loads(msg)
-#			logger.info(j)
-#			logger.info('')
-
-		elif msg[:24] == '{"msgtype":"ENCODER_ERR"':
-			j = json.loads(msg)
-#			logger.info(j)
-#			logger.info('')
-
-		else:
-			j = json.loads(msg)
-#			logger.info(j)
-#			logger.info('')
 
 
 start_server = websockets.serve(handler, '0.0.0.0', 8800)

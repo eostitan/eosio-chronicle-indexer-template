@@ -7,7 +7,7 @@ mode = scan
 plugin = exp_ws_plugin
 exp-ws-host = chronicle_consumer
 exp-ws-port = 8800
-exp-ws-bin-header = false
+exp-ws-bin-header = true
 exp-ws-max-unack = 3000
 
 #skip-table-deltas = true
