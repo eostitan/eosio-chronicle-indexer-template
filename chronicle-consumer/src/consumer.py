@@ -35,7 +35,7 @@ async def handler(websocket, path):
 
 		if msg[:18] == '{"msgtype":"BLOCK"':
 			block_count += 1
-			if block_count % 2500 == 0:
+			if block_count % 100 == 0:
 				block_count = 0
 				j = json.loads(msg)
 				data = j['data']
@@ -85,21 +85,25 @@ async def handler(websocket, path):
 			j = json.loads(msg)
 			logger.info(j)
 			logger.info('')
+			data = j['data']
+			block_num = int(data['block_num']) - 1
+			await websocket.send(str(block_num))
+			logger.info(f"Block {block_num} acknowledged (on fork)!")
 
 		elif msg[:20] == '{"msgtype":"ABI_ERR"':
 			j = json.loads(msg)
-			logger.info(j)
-			logger.info('')
+#			logger.info(j)
+#			logger.info('')
 
 		elif msg[:24] == '{"msgtype":"ENCODER_ERR"':
 			j = json.loads(msg)
-			logger.info(j)
-			logger.info('')
+#			logger.info(j)
+#			logger.info('')
 
 		else:
 			j = json.loads(msg)
-			logger.info(j)
-			logger.info('')
+#			logger.info(j)
+#			logger.info('')
 
 
 start_server = websockets.serve(handler, '0.0.0.0', 8800)
