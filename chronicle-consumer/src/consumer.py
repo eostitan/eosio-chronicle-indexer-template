@@ -25,7 +25,7 @@ formatter = logging.Formatter(f'%(asctime)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-# define chronicle message constants
+# defines chronicle message constants
 CHRONICLE_MSGTYPE_FORK = 1001
 CHRONICLE_MSGTYPE_BLOCK = 1002
 CHRONICLE_MSGTYPE_TX_TRACE = 1003
@@ -45,7 +45,6 @@ async def handler(websocket, path):
 	while KEEP_RUNNING:
 		msg = await websocket.recv()
 		msgtype = struct.unpack('i', msg[0:4])[0]
-		value2 = struct.unpack('i', msg[4:8])[0]
 
 		if msgtype == CHRONICLE_MSGTYPE_FORK:
 			msg = msg[8:].decode("utf-8", errors='ignore')
@@ -57,6 +56,7 @@ async def handler(websocket, path):
 		elif msgtype == CHRONICLE_MSGTYPE_BLOCK:
 			block_count += 1
 			if block_count % 100 == 0:
+				block_count = 0
 				msg = msg[8:].decode("utf-8", errors='ignore')
 				msg = json.loads(msg)
 				block_num = int(msg['block_num'])

@@ -1,6 +1,6 @@
 ## EOSIO Chronicle Indexer
 
-Employs the open source [EOS Chronicle project](https://github.com/EOSChronicleProject/eos-chronicle) to monitor action traces on EOSIO blockchains, and react with database indexing or other triggered effects. This acts as a template for more custmised software.
+Employs the open source [EOS Chronicle project](https://github.com/EOSChronicleProject/eos-chronicle) to monitor action traces on EOSIO blockchains, and react with database indexing or other triggered effects. This acts as a template for customised software.
 
 ### To Run
 
