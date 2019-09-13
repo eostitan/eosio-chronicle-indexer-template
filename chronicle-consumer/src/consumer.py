@@ -52,8 +52,6 @@ async def handler(websocket, path):
 			msg = msg[8:].decode("utf-8", errors='ignore')
 			msg = json.loads(msg)
 			block_num = int(msg['block_num']) - 1
-			logger.info(msg)
-			logger.info('')
 			await websocket.send(str(block_num))
 			logger.info(f"Block {block_num} acknowledged (on fork)!")
 
