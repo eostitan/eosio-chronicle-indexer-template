@@ -89,7 +89,13 @@ async def handler(websocket, path):
 				auth = act['authorization']
 				data = act['data']
 				account_ram_deltas = action_trace['account_ram_deltas']
-#				logger.info(f'{receiver} - {account} - {name} - {data}')
+
+				# sample code to log transfers matching the following criteria
+				# this can be changed to trigger any action when a specific action trace is detected
+				if receiver == 'eosio.token':
+					if account == 'eosio.token' and name == 'transfer':
+						if data['from'] != 'eosio':
+							logger.info(f'{data["quantity"]} sent from {data["from"]} to {data["to"]}')
 
 
 start_server = websockets.serve(handler, '0.0.0.0', 8800)
