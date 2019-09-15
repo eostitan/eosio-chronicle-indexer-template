@@ -5,7 +5,7 @@ Employs the open source [EOS Chronicle project](https://github.com/EOSChronicleP
 ### To Run
 
 1) Install docker and docker-compose
-2) Create a `cronicle-receiver/config/config.ini` file like the example, and modify as with the host and port for the state history node you wish to connect to
+2) Create a `chronicle-receiver/config/config.ini` file like the example, and modify as with the host and port for the state history node you wish to connect to
 3) `docker-compose up -d`
 
 ### To monitor consumer log file
