@@ -92,7 +92,7 @@ async def handler(websocket, path):
 							logger.info(f'{data["quantity"]} sent from {data["from"]} to {data["to"]}')
 
 
-start_server = websockets.serve(handler, '0.0.0.0', 8800)
+start_server = websockets.serve(handler, '0.0.0.0', 8800, max_size=2**27)
 logger.info('Started Chronicle Consumer')
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
