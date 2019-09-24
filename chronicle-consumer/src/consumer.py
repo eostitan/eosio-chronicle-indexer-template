@@ -53,15 +53,14 @@ async def handler(websocket, path):
 			await websocket.send(str(block_num))
 			logger.info(f"Block {block_num} acknowledged (on fork)!")
 
-		elif msgtype == CHRONICLE_MSGTYPE_BLOCK:
+		elif msgtype == CHRONICLE_MSGTYPE_BLOCK_COMPLETED:
 			block_count += 1
 			if block_count % 100 == 0:
 				block_count = 0
 				msg = msg[8:].decode("utf-8", errors='ignore')
 				msg = json.loads(msg)
 				block_num = int(msg['block_num'])
-				block = msg['block']
-				block_timestamp = block['timestamp']
+				block_timestamp = msg['block_timestamp']
 				await websocket.send(str(block_num))
 				logger.info(f"Block {block_num} with timestamp {block_timestamp} acknowledged!")
 
