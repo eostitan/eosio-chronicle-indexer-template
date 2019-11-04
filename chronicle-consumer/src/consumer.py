@@ -39,7 +39,6 @@ CHRONICLE_MSGTYPE_BLOCK_COMPLETED = 1010
 
 # basic message handler
 async def handler(websocket, path):
-	global action_buffer
 	block_count = 0
 	start_time = datetime.utcnow()
 	while KEEP_RUNNING:
