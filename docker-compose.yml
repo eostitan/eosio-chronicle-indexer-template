@@ -7,8 +7,6 @@ services:
     volumes:
       - ./chronicle-receiver/config:/build/eos-chronicle/config
       - ./chronicle-receiver/data:/build/eos-chronicle/data
-    env_file:
-      - ./config.env
     command: ["/build/eos-chronicle/build/chronicle-receiver", "--config-dir", "/build/eos-chronicle/config", "--data-dir", "/build/eos-chronicle/data"]
     depends_on:
       - chronicle_consumer
@@ -21,7 +19,5 @@ services:
       - "8800:8800"
     volumes:
       - ./chronicle-consumer:/usr/src/app
-    env_file:
-      - ./config.env
     command: ["python", "src/consumer.py"]
 
